@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Premium Periodensystem</title>
+
+<style>
+body{
+    margin:0;
+    font-family:Segoe UI, sans-serif;
+    background:
+        radial-gradient(circle at 20% 20%, rgba(0,255,255,0.15), transparent 40%),
+        radial-gradient(circle at 80% 80%, rgba(168,85,247,0.15), transparent 40%),
+        linear-gradient(135deg,#0f172a,#1e293b);
+    color:white;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+}
+
+h1{
+    margin-top:40px;
+    font-weight:600;
+    letter-spacing:1px;
+    opacity:0.9;
+}
+
+#table{
+  display:grid;
+  grid-template-columns:repeat(18,65px);
+  grid-template-rows:repeat(9,70px);
+  gap:10px;
+}
+
+.element{
+    border-radius:18px;
+    padding:8px;
+    cursor:pointer;
+    text-align:center;
+    font-size:12px;
+    transition:0.25s;
+    position:relative;
+
+    backdrop-filter:blur(20px) saturate(160%);
+    -webkit-backdrop-filter:blur(20px) saturate(160%);
+
+    border:1px solid rgba(255,255,255,0.18);
+
+    box-shadow:
+        inset 0 0 15px rgba(255,255,255,0.08),
+        0 12px 30px rgba(0,0,0,0.4);
+}
+
+.element:hover{
+    transform:translateY(-6px) scale(1.08);
+    box-shadow:
+        inset 0 0 15px rgba(255,255,255,0.08),
+        0 12px 30px rgba(0,0,0,0.5);
+}
+
+.number{
+    font-size:10px;
+    opacity:0.6;
+}
+
+.symbol{
+    font-size:19px;
+    font-weight:bold;
+}
+
+/* popup */
+#modal{
+    position:fixed;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%) scale(0.8);
+    width:420px;
+
+    background:linear-gradient(
+        145deg,
+        rgba(255,255,255,0.08),
+        rgba(255,255,255,0.03)
+    );
+
+    backdrop-filter:blur(40px) saturate(160%);
+    -webkit-backdrop-filter:blur(40px) saturate(160%);
+
+    border-radius:28px;
+    padding:30px;
+
+    box-shadow:
+        0 40px 100px rgba(0,0,0,0.8),
+        inset 0 0 40px rgba(255,255,255,0.08);
+
+    border:1px solid rgba(255,255,255,0.15);
+
+    display:none;
+    opacity:0;
+}
+
+#modal h2{
+    margin-top:0;
+    font-size:24px;
+}
+
+#modal p{
+    opacity:0.9;
+    margin:6px 0;
+}
+
+.close{
+    position:absolute;
+    right:18px;
+    top:12px;
+    cursor:pointer;
+    font-size:20px;
+    opacity:0.6;
+    transition:0.2s;
+}
+
+.close:hover{
+    opacity:1;
+    transform:scale(1.2);
+}
+body::before{
+    content:"";
+    position:fixed;
+    width:600px;
+    height:600px;
+    background:radial-gradient(circle, rgba(0,255,255,0.2), transparent 70%);
+    top:-200px;
+    left:-200px;
+    filter:blur(120px);
+    z-index:-1;
+}
+</style>
+</head>
+<body>
+
+<h1>Modernes Interaktives Periodensystem</h1>
+<div id="table"></div>
+<div id="modal"></div>
+
+<script>
+const table=document.getElementById("table");
+const modal=document.getElementById("modal");
+
+const elements = [
+{n:1,s:"H",g:1,p:1},{n:2,s:"He",g:18,p:1},
+
+{n:3,s:"Li",g:1,p:2},{n:4,s:"Be",g:2,p:2},{n:5,s:"B",g:13,p:2},{n:6,s:"C",g:14,p:2},{n:7,s:"N",g:15,p:2},{n:8,s:"O",g:16,p:2},{n:9,s:"F",g:17,p:2},{n:10,s:"Ne",g:18,p:2},
+
+{n:11,s:"Na",g:1,p:3},{n:12,s:"Mg",g:2,p:3},{n:13,s:"Al",g:13,p:3},{n:14,s:"Si",g:14,p:3},{n:15,s:"P",g:15,p:3},{n:16,s:"S",g:16,p:3},{n:17,s:"Cl",g:17,p:3},{n:18,s:"Ar",g:18,p:3},
+
+{n:19,s:"K",g:1,p:4},{n:20,s:"Ca",g:2,p:4},{n:21,s:"Sc",g:3,p:4},{n:22,s:"Ti",g:4,p:4},{n:23,s:"V",g:5,p:4},{n:24,s:"Cr",g:6,p:4},{n:25,s:"Mn",g:7,p:4},{n:26,s:"Fe",g:8,p:4},{n:27,s:"Co",g:9,p:4},{n:28,s:"Ni",g:10,p:4},{n:29,s:"Cu",g:11,p:4},{n:30,s:"Zn",g:12,p:4},{n:31,s:"Ga",g:13,p:4},{n:32,s:"Ge",g:14,p:4},{n:33,s:"As",g:15,p:4},{n:34,s:"Se",g:16,p:4},{n:35,s:"Br",g:17,p:4},{n:36,s:"Kr",g:18,p:4},
+
+{n:37,s:"Rb",g:1,p:5},{n:38,s:"Sr",g:2,p:5},{n:39,s:"Y",g:3,p:5},{n:40,s:"Zr",g:4,p:5},{n:41,s:"Nb",g:5,p:5},{n:42,s:"Mo",g:6,p:5},{n:43,s:"Tc",g:7,p:5},{n:44,s:"Ru",g:8,p:5},{n:45,s:"Rh",g:9,p:5},{n:46,s:"Pd",g:10,p:5},{n:47,s:"Ag",g:11,p:5},{n:48,s:"Cd",g:12,p:5},{n:49,s:"In",g:13,p:5},{n:50,s:"Sn",g:14,p:5},{n:51,s:"Sb",g:15,p:5},{n:52,s:"Te",g:16,p:5},{n:53,s:"I",g:17,p:5},{n:54,s:"Xe",g:18,p:5},
+
+{n:55,s:"Cs",g:1,p:6},{n:56,s:"Ba",g:2,p:6},
+{n:57,s:"La",g:3,p:8},{n:58,s:"Ce",g:4,p:8},{n:59,s:"Pr",g:5,p:8},{n:60,s:"Nd",g:6,p:8},{n:61,s:"Pm",g:7,p:8},{n:62,s:"Sm",g:8,p:8},{n:63,s:"Eu",g:9,p:8},{n:64,s:"Gd",g:10,p:8},{n:65,s:"Tb",g:11,p:8},{n:66,s:"Dy",g:12,p:8},{n:67,s:"Ho",g:13,p:8},{n:68,s:"Er",g:14,p:8},{n:69,s:"Tm",g:15,p:8},{n:70,s:"Yb",g:16,p:8},{n:71,s:"Lu",g:17,p:8},
+
+{n:72,s:"Hf",g:4,p:6},{n:73,s:"Ta",g:5,p:6},{n:74,s:"W",g:6,p:6},{n:75,s:"Re",g:7,p:6},{n:76,s:"Os",g:8,p:6},{n:77,s:"Ir",g:9,p:6},{n:78,s:"Pt",g:10,p:6},{n:79,s:"Au",g:11,p:6},{n:80,s:"Hg",g:12,p:6},{n:81,s:"Tl",g:13,p:6},{n:82,s:"Pb",g:14,p:6},{n:83,s:"Bi",g:15,p:6},{n:84,s:"Po",g:16,p:6},{n:85,s:"At",g:17,p:6},{n:86,s:"Rn",g:18,p:6},
+
+{n:87,s:"Fr",g:1,p:7},{n:88,s:"Ra",g:2,p:7},
+{n:89,s:"Ac",g:3,p:9},{n:90,s:"Th",g:4,p:9},{n:91,s:"Pa",g:5,p:9},{n:92,s:"U",g:6,p:9},{n:93,s:"Np",g:7,p:9},{n:94,s:"Pu",g:8,p:9},{n:95,s:"Am",g:9,p:9},{n:96,s:"Cm",g:10,p:9},{n:97,s:"Bk",g:11,p:9},{n:98,s:"Cf",g:12,p:9},{n:99,s:"Es",g:13,p:9},{n:100,s:"Fm",g:14,p:9},{n:101,s:"Md",g:15,p:9},{n:102,s:"No",g:16,p:9},{n:103,s:"Lr",g:17,p:9},
+
+{n:104,s:"Rf",g:4,p:7},{n:105,s:"Db",g:5,p:7},{n:106,s:"Sg",g:6,p:7},{n:107,s:"Bh",g:7,p:7},{n:108,s:"Hs",g:8,p:7},{n:109,s:"Mt",g:9,p:7},{n:110,s:"Ds",g:10,p:7},{n:111,s:"Rg",g:11,p:7},{n:112,s:"Cn",g:12,p:7},{n:113,s:"Nh",g:13,p:7},{n:114,s:"Fl",g:14,p:7},{n:115,s:"Mc",g:15,p:7},{n:116,s:"Lv",g:16,p:7},{n:117,s:"Ts",g:17,p:7},{n:118,s:"Og",g:18,p:7}
+];
+
+elements.forEach(el=>{
+    const div=document.createElement("div");
+    div.className="element";
+
+    if(el.g===1) div.style.background="rgba(0,255,255,0.15)";
+    else if(el.g===18) div.style.background="rgba(168,85,247,0.15)";
+    else if(el.g>=3 && el.g<=12) div.style.background="rgba(255,255,255,0.08)";
+    else div.style.background="rgba(255,120,120,0.12)";
+
+    div.style.gridColumn=el.g;
+    div.style.gridRow=el.p;
+
+    div.innerHTML=`
+        <div class="number">${el.n}</div>
+        <div class="symbol">${el.s}</div>
+    `;
+
+    div.onclick=(e)=>openModal(el.n,el.s,e.currentTarget);
+
+    table.appendChild(div);
+});
+
+function openModal(n, sym, origin){
+    // Modal vorbereiten
+    modal.innerHTML=`
+        <span class="close" onclick="closeModal()">×</span>
+        <h2>${sym}</h2>
+        <p><strong>Ordnungszahl:</strong> ${n}</p>
+        <p><strong>Atommasse:</strong> ${(n*2).toFixed(2)}</p>
+        <p><strong>Protonen:</strong> ${n}</p>
+        <p><strong>Neutronen:</strong> ${Math.round(n)}</p>
+        <p><strong>Elektronen:</strong> ${n}</p>
+    `;
+    modal.style.display="block";
+    modal.style.opacity="0";
+
+    const rectOrigin = origin.getBoundingClientRect();
+    const rectModal = modal.getBoundingClientRect();
+
+    // FLIP Invert
+    const scaleX = rectOrigin.width / rectModal.width;
+    const scaleY = rectOrigin.height / rectModal.height;
+    const translateX = rectOrigin.left + rectOrigin.width/2 - (rectModal.left + rectModal.width/2);
+    const translateY = rectOrigin.top + rectOrigin.height/2 - (rectModal.top + rectModal.height/2);
+
+    // Startposition ohne Transition
+    modal.style.transition = "none";
+    modal.style.transform = `translate(calc(-50% + ${translateX}px), calc(-50% + ${translateY}px)) scale(${scaleX}, ${scaleY})`;
+
+    // Force reflow
+    modal.getBoundingClientRect();
+
+    // Dann Transition aktivieren → Animation läuft
+    modal.style.transition = "transform 500ms cubic-bezier(.16,1,.3,1), opacity 400ms ease-out";
+    requestAnimationFrame(() => {
+        modal.style.transform = "translate(-50%, -50%) scale(1)";
+        modal.style.opacity = "1";
+    });
+}
+
+function closeModal(){
+    const rectOrigin = document.querySelector(".element.clicked")?.getBoundingClientRect();
+    const rectModal = modal.getBoundingClientRect();
+    
+    if(rectOrigin){
+        const scaleX = rectOrigin.width / rectModal.width;
+        const scaleY = rectOrigin.height / rectModal.height;
+        const translateX = rectOrigin.left + rectOrigin.width/2 - (rectModal.left + rectModal.width/2);
+        const translateY = rectOrigin.top + rectOrigin.height/2 - (rectModal.top + rectModal.height/2);
+
+        modal.style.transform = `translate(calc(-50% + ${translateX}px), calc(-50% + ${translateY}px)) scale(${scaleX}, ${scaleY})`;
+        modal.style.opacity = "0";
+
+        modal.addEventListener("transitionend", () => modal.style.display="none", {once:true});
+    } else {
+        modal.style.opacity="0";
+        setTimeout(()=> modal.style.display="none", 400);
+    }
+}
+
+function closeModal() {
+    modal.style.opacity = "0";
+    modal.style.transform = "translate(-50%, -50%) scale(0.8)";
+    setTimeout(() => {
+        modal.style.display = "none";
+    }, 400);
+}
+</script>
+
+</body>
+</html>
