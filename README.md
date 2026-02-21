@@ -15,7 +15,7 @@ Die gesamte Anwendung läuft vollständig clientseitig mit HTML, CSS und JavaScr
 
 ---
 
-![Screenshot](Screenshot.png)
+<img src="Screenshot.png" width="700">
 
 ---
 
